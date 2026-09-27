@@ -1,7 +1,7 @@
 [project]
 name = "omenu"
 version = "0.1.0"
-description = "Add your description here"
+description = "A GTA-inspired radial menu application launcher for Wayland-based Linux systems"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
