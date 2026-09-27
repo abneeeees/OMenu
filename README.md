@@ -53,7 +53,7 @@ sudo usermod -aG input $USER
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/OMenu.git
+   git clone https://github.com/abneeeees/OMenu.git
    cd OMenu
    ```
 
