@@ -6,6 +6,11 @@ A fast, GTA-inspired radial menu application launcher for Wayland-based Linux sy
 
 ---
 
+## Screenshots
+<img width="484" height="482" alt="Screenshot From 2026-09-27 20-39-17" src="https://github.com/user-attachments/assets/b8f50869-d240-4514-ba8c-d3c4441f0fe7" />
+<img width="1912" height="1175" alt="Screenshot From 2026-09-27 20-39-32" src="https://github.com/user-attachments/assets/bf8d04cd-b9e7-48c6-8e9b-74eb5e088fe1" />
+
+
 ## System Requirements & Dependencies
 
 OMenu requires Python 3.10+ (configured for Python 3.14+) and the development libraries for GTK 4, Cairo, and GObject Introspection.
