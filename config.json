@@ -1,0 +1,70 @@
+{
+  "apps": [
+    {
+      "name": "Terminal",
+      "command": "ptyxis",
+      "icon": "org.gnome.Ptyxis",
+      "cwd": "~"
+    },
+    {
+      "name": "Files",
+      "command": "nautilus",
+      "icon": "org.gnome.Nautilus",
+      "cwd": "~"
+    },
+    {
+      "name": "Zen",
+      "command": "flatpak run app.zen_browser.zen",
+      "icon": "app.zen_browser.zen",
+      "cwd": "~"
+    },
+    {
+      "name": "Zed",
+      "command": "zed .",
+      "icon": "zed",
+      "cwd": "~"
+    },
+    {
+      "name": "Settings",
+      "command": "gnome-control-center",
+      "icon": "org.gnome.Settings",
+      "cwd": "~"
+    },
+    {
+      "name": "Calculator",
+      "command": "gnome-calculator",
+      "icon": "org.gnome.Calculator",
+      "cwd": "~"
+    },
+    {
+      "name": "Krita",
+      "command": "krita",
+      "icon": "krita",
+      "cwd": "~"
+    },
+    {
+      "name": "Images",
+      "command": "loupe",
+      "icon": "org.gnome.Loupe",
+      "cwd": "~"
+    },
+    {
+      "name": "System Monitor",
+      "command": "gnome-system-monitor",
+      "icon": "org.gnome.SystemMonitor",
+      "cwd": "~"
+    },
+    {
+      "name": "Screenshot",
+      "command": "gnome-screenshot -d 5",
+      "icon": "org.gnome.Screenshot",
+      "cwd": "~/Pictures"
+    },
+    {
+      "name": "Lock Screen",
+      "command": "loginctl lock-session",
+      "icon": "system-lock-screen",
+      "cwd": "~"
+    }
+  ]
+}
