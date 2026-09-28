@@ -42,14 +42,15 @@ class MenuWindow:
         self.window = None
         self.drawing_area = None
         self.launcher = Launcher()
-        self.icon_cache = {}
+        self.icon_cache = {}    # cache of icon pixbufs by (icon_name, size)
 
-    def get_icon_pixbuf(self, icon_name, size=48):
+    def get_icon_pixbuf(self, icon_name, size):
         """Lookup and cache an icon as a GdkPixbuf at the requested size."""
         if not icon_name:
             return None
         cache_key = (icon_name, size)
         if cache_key in self.icon_cache:
+            # returns the cached pixbuf, or None if the icon could not be loaded
             return self.icon_cache[cache_key]
 
         pixbuf = None
@@ -73,8 +74,8 @@ class MenuWindow:
                     None,
                     size,
                     1,
-                    Gtk.TextDirection.NONE,
-                    Gtk.IconLookupFlags.NONE,
+                    Gtk.TextDirection.LTR,
+                    Gtk.IconLookupFlags.FORCE_REGULAR,
                 )
                 if icon_paintable:
                     gfile = icon_paintable.get_file()
@@ -95,12 +96,15 @@ class MenuWindow:
                 else:
                     pixbuf = None
 
+        # After finding the pixbuf, cache it for future use
         self.icon_cache[cache_key] = pixbuf
+        # pixbuf may be None if the icon could not be loaded
         return pixbuf
 
     def show(self):
         """Present the menu window, recentered on the cursor, and trigger a redraw."""
         w, h = self.monitor_size()
+        # Determine the center position, ensuring it stays within the monitor bounds
         self.center_x = max(self.OUTER_RADIUS, min(w - self.OUTER_RADIUS, self.pointer_x))
         self.center_y = max(self.OUTER_RADIUS, min(h - self.OUTER_RADIUS, self.pointer_y))
         self.selected = -1
@@ -122,14 +126,17 @@ class MenuWindow:
             self.launcher.launch(self.apps[index]["command"])
 
     def hit_test(self, px, py):
-        """Return the arc index under a point, or -1 when the point is outside every arc."""
+        """Return the arc index for a point, launching even when the cursor
+        is not touching a sector. Inside the center circle it keeps the
+        currently highlighted sector; everywhere else the sector is picked
+        by angle alone."""
         if self.ITEM_COUNT == 0:
             return -1
         dx = px - self.center_x
         dy = py - self.center_y
         distance = math.hypot(dx, dy)
-        if not self.INNER_RADIUS <= distance <= self.OUTER_RADIUS:
-            return -1
+        if distance < self.INNER_RADIUS:
+            return self.selected
         angle = math.atan2(dy, dx) % math.tau
         return int(angle / (math.tau / self.ITEM_COUNT))
 
@@ -281,7 +288,7 @@ class MenuWindow:
             name = app.get("name", "")
             icon_name = app.get("icon", "")
 
-            icon_size = 48
+            icon_size = 50
             pixbuf = self.get_icon_pixbuf(icon_name, icon_size)
 
             if pixbuf:
