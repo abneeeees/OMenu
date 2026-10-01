@@ -5,7 +5,7 @@ import json
 class InputHandler:
     def __init__(self, device_path=None):
         if not device_path:
-            with open("config.json", "r") as f:
+            with open("omenu.json", "r") as f:
                 config = json.load(f)
                 device_path = config.get("input_device")
         self.mouse = InputDevice(device_path)
