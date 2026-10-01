@@ -1,0 +1,26 @@
+{
+  "input_device": "/dev/input/event4",
+  "style": [
+    {
+      "inner-radius": 100,
+      "outer-radius": 200,
+      "icon-size": 50,
+      "wedge-fill-selected": [0.24, 0.47, 0.85, 0.75],
+      "wedge-fill-unselected": [0.15, 0.15, 0.17, 0.85],
+      "wedge-border-selected": [0.8, 0.89, 1.0, 1.0],
+      "wedge-border-unselected": [0.25, 0.25, 0.27, 1.0],
+      "wedge-border-selected-width": 3,
+      "wedge-border-unselected-width": 2,
+      "center-fill": [0.07, 0.07, 0.08, 1.0],
+      "center-border": [0.18, 0.18, 0.2, 1.0],
+      "center-border-width": 2,
+      "icon-y-offset": -18,
+      "label-font-family": "Sans",
+      "label-font-weight": "bold",
+      "label-font-size": 16,
+      "label-color": [0.95, 0.95, 0.97, 1.0],
+      "label-y-offset": 32,
+      "label-y-offset-no-icon": 6
+    }
+  ]
+}

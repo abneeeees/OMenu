@@ -6,9 +6,8 @@ A fast, GTA-inspired radial menu application launcher for Wayland-based Linux sy
 
 ---
 
-## Screenshots
+## Preview
 <img width="484" height="482" alt="Screenshot From 2026-09-27 20-39-17" src="https://github.com/user-attachments/assets/b8f50869-d240-4514-ba8c-d3c4441f0fe7" />
-<img width="1912" height="1175" alt="Screenshot From 2026-09-27 20-39-32" src="https://github.com/user-attachments/assets/bf8d04cd-b9e7-48c6-8e9b-74eb5e088fe1" />
 
 
 ## System Requirements & Dependencies
@@ -36,10 +35,9 @@ sudo pacman -S gtk4 gobject-introspection cairo python-gobject
 ### Input Device Permissions
 
 - OMenu reads input events directly from `/dev/input/`. To run OMenu without root privileges, ensure your user is part of the `input` group:
-- Make sure you enter the right event device path in the configuration file.
-- Find out using `ls -la /dev/input/`
-
+- Make sure you enter the right event device path in [`omenu.json`](omenu.json).
 ```bash
+cat /proc/bus/input/devices
 sudo usermod -aG input $USER
 ```
 
@@ -47,7 +45,7 @@ sudo usermod -aG input $USER
 
 ---
 
-## Installation
+## Installation and Usage
 
 ### Using `uv` (Recommended)
 
@@ -60,21 +58,10 @@ sudo usermod -aG input $USER
 2. Synchronize project dependencies:
    ```bash
    uv sync
+   uv run omenu
    ```
 
----
-
-## Usage
-
-Start the OMenu daemon:
-
-```bash
-# Using uv
-uv run omenu
-
-# Or using Python module execution
-python -m omenu
-```
+   
 
 ### Controls
 
@@ -89,11 +76,12 @@ python -m omenu
 
 ## Configuration
 
-Application entries are defined in [`config.json`](config.json) located at the root of the project:
+### Applications
+
+Application entries are defined in [`application.json`](application.json) located at the root of the project:
 
 ```json
 {
-  "input_device": "/dev/input/your-event-device",
   "apps": [
     {
       "name": "Terminal",
@@ -101,23 +89,92 @@ Application entries are defined in [`config.json`](config.json) located at the r
       "icon": "org.gnome.Ptyxis",
       "cwd": "~"
     },
+    ....
+  ]
+}
+```
+
+### Appearance
+
+`input_device` selects the evdev device OMenu reads from (find it with `ls -la /dev/input/`). The menu geometry, colors, and label styling are configured in the `style` array of [`omenu.json`](omenu.json) — colors are RGBA arrays with values in the `0.0`–`1.0` range:
+
+```json
+{
+  "input_device": "/dev/input/event4",
+  "style": [
     {
-      "name": "Files",
-      "command": "nautilus",
-      "icon": "org.gnome.Nautilus",
-      "cwd": "~"
-    },
+      "inner-radius": 100,
+      "outer-radius": 200,
+      "icon-size": 50,
+      ...
+    }
+  ]
+}
+```
+
+### Some Other themes to try
+
+#### Cyberpunk
+
+Neon teal highlights over a dark background:
+
+```json
+{
+  "input_device": "/dev/input/event4",
+  "style": [
     {
-      "name": "Zen Browser",
-      "command": "flatpak run app.zen_browser.zen",
-      "icon": "app.zen_browser.zen",
-      "cwd": "~"
-    },
+      "inner-radius": 100,
+      "outer-radius": 200,
+      "icon-size": 50,
+      "wedge-fill-selected": [0.05, 0.9, 0.8, 0.85],
+      "wedge-fill-unselected": [0.04, 0.05, 0.08, 0.9],
+      "wedge-border-selected": [0.4, 1.0, 0.95, 1.0],
+      "wedge-border-unselected": [0.15, 0.25, 0.3, 1.0],
+      "wedge-border-selected-width": 3,
+      "wedge-border-unselected-width": 2,
+      "center-fill": [0.02, 0.03, 0.05, 1.0],
+      "center-border": [0.05, 0.9, 0.8, 1.0],
+      "center-border-width": 2,
+      "icon-y-offset": -18,
+      "label-font-family": "Sans",
+      "label-font-weight": "bold",
+      "label-font-size": 16,
+      "label-color": [0.75, 1.0, 0.95, 1.0],
+      "label-y-offset": 32,
+      "label-y-offset-no-icon": 6
+    }
+  ]
+}
+```
+
+#### Modern Orange
+
+Warm amber-orange accents on a dark brown palette:
+
+```json
+{
+  "input_device": "/dev/input/event4",
+  "style": [
     {
-      "name": "Settings",
-      "command": "gnome-control-center",
-      "icon": "org.gnome.Settings",
-      "cwd": "~"
+      "inner-radius": 100,
+      "outer-radius": 200,
+      "icon-size": 50,
+      "wedge-fill-selected": [0.95, 0.35, 0.12, 0.9],
+      "wedge-fill-unselected": [0.12, 0.1, 0.09, 0.9],
+      "wedge-border-selected": [1.0, 0.75, 0.45, 1.0],
+      "wedge-border-unselected": [0.28, 0.24, 0.21, 1.0],
+      "wedge-border-selected-width": 3,
+      "wedge-border-unselected-width": 2,
+      "center-fill": [0.09, 0.07, 0.06, 1.0],
+      "center-border": [0.95, 0.35, 0.12, 1.0],
+      "center-border-width": 2,
+      "icon-y-offset": -18,
+      "label-font-family": "Sans",
+      "label-font-weight": "bold",
+      "label-font-size": 16,
+      "label-color": [1.0, 0.88, 0.72, 1.0],
+      "label-y-offset": 32,
+      "label-y-offset-no-icon": 6
     }
   ]
 }
@@ -129,7 +186,8 @@ Application entries are defined in [`config.json`](config.json) located at the r
 
 ```
 OMenu/
-├── config.json            # Application shortcuts and icon configuration
+├── application.json       # Application shortcuts and icon configuration
+├── omenu.json             # Input device and radial menu appearance settings
 ├── pyproject.toml         # Package metadata, dependencies, and build definitions
 ├── src/
 │   └── omenu/
