@@ -22,13 +22,38 @@ window,
 class MenuWindow:
     def __init__(self):
         # Menu dimensions and geometry
-        self.INNER_RADIUS = 100
-        self.OUTER_RADIUS = 200
-
-        with open('config.json') as f:
-            self.config = json.load(f)
-        self.apps = self.config.get("apps", [])
+        with open('application.json') as f1:
+            self.application = json.load(f1)
+        self.apps = self.application.get("apps", [])
         self.ITEM_COUNT = len(self.apps)
+
+        with open("omenu.json") as f:
+            self.omenu = json.load(f)
+        
+        self.style = self.omenu.get("style", [{}])[0]
+
+        self.INNER_RADIUS = self.style.get("inner-radius")
+        self.OUTER_RADIUS = self.style.get("outer-radius")
+        self.ICON_SIZE = self.style.get("icon-size")
+
+        self.WEDGE_FILL_SELECTED = self.style.get("wedge-fill-selected", (0.24, 0.47, 0.85, 0.75))
+        self.WEDGE_FILL_UNSELECTED = self.style.get("wedge-fill-unselected", (0.15, 0.15, 0.17, 0.85))
+        self.WEDGE_BORDER_SELECTED = self.style.get("wedge-border-selected", (0.80, 0.89, 1.0, 1.0))
+        self.WEDGE_BORDER_UNSELECTED = self.style.get("wedge-border-unselected", (0.25, 0.25, 0.27, 1.0))
+        self.WEDGE_BORDER_SELECTED_WIDTH = self.style.get("wedge-border-selected-width", 3)
+        self.WEDGE_BORDER_UNSELECTED_WIDTH = self.style.get("wedge-border-unselected-width", 2)
+
+        self.CENTER_FILL = self.style.get("center-fill", (0.07, 0.07, 0.08, 1.0))
+        self.CENTER_BORDER = self.style.get("center-border", (0.18, 0.18, 0.20, 1.0))
+        self.CENTER_BORDER_WIDTH = self.style.get("center-border-width", 2)
+
+        self.ICON_Y_OFFSET = self.style.get("icon-y-offset")
+        self.LABEL_FONT_FAMILY = self.style.get("label-font-family")
+        self.LABEL_FONT_WEIGHT = self.style.get("label-font-weight")
+        self.LABEL_FONT_SIZE = self.style.get("label-font-size")
+        self.LABEL_COLOR = self.style.get("label-color")
+        self.LABEL_Y_OFFSET = self.style.get("label-y-offset")
+        self.LABEL_Y_OFFSET_NO_ICON = self.style.get("label-y-offset-no-icon")
 
         # The pointer position, and the fixed point the menu is drawn around
         self.pointer_x = 0
@@ -252,18 +277,18 @@ class MenuWindow:
 
             # Fill wedge background, brighter when it is the selected arc
             if selected:
-                cr.set_source_rgba(0.24, 0.47, 0.85, 0.75)
+                cr.set_source_rgba(*self.WEDGE_FILL_SELECTED)
             else:
-                cr.set_source_rgba(0.15, 0.15, 0.17, 0.85)
+                cr.set_source_rgba(*self.WEDGE_FILL_UNSELECTED)
             cr.fill_preserve()
 
             # Stroke wedge border, highlighted when it is the selected arc
             if selected:
-                cr.set_source_rgb(0.80, 0.89, 1.0)
-                cr.set_line_width(3)
+                cr.set_source_rgba(*self.WEDGE_BORDER_SELECTED)
+                cr.set_line_width(self.WEDGE_BORDER_SELECTED_WIDTH)
             else:
-                cr.set_source_rgb(0.25, 0.25, 0.27)
-                cr.set_line_width(2)
+                cr.set_source_rgba(*self.WEDGE_BORDER_UNSELECTED)
+                cr.set_line_width(self.WEDGE_BORDER_UNSELECTED_WIDTH)
             cr.stroke()
 
         # 3. Draw center circle
@@ -274,12 +299,12 @@ class MenuWindow:
             0,
             math.tau,
         )
-        cr.set_source_rgb(0.07, 0.07, 0.08)
+        cr.set_source_rgba(*self.CENTER_FILL)
         cr.fill_preserve()
 
         # Center circle border
-        cr.set_source_rgb(0.18, 0.18, 0.20)
-        cr.set_line_width(2)
+        cr.set_source_rgba(*self.CENTER_BORDER)
+        cr.set_line_width(self.CENTER_BORDER_WIDTH)
         cr.stroke()
 
         # 4. Label the center circle with the selected app icon and name
@@ -288,25 +313,33 @@ class MenuWindow:
             name = app.get("name", "")
             icon_name = app.get("icon", "")
 
-            icon_size = 50
+            icon_size = self.ICON_SIZE
             pixbuf = self.get_icon_pixbuf(icon_name, icon_size)
+
+            font_weight = (
+                cairo.FONT_WEIGHT_BOLD
+                if self.LABEL_FONT_WEIGHT == "bold"
+                else cairo.FONT_WEIGHT_NORMAL
+            )
 
             if pixbuf:
                 pw = pixbuf.get_width()
                 ph = pixbuf.get_height()
                 icon_x = self.center_x - pw / 2
-                icon_y = self.center_y - ph / 2 - 18
+                icon_y = self.center_y - ph / 2 + self.ICON_Y_OFFSET
                 Gdk.cairo_set_source_pixbuf(cr, pixbuf, icon_x, icon_y)
                 cr.rectangle(icon_x, icon_y, pw, ph)
                 cr.fill()
-                text_y = self.center_y + 32
+                text_y = self.center_y + self.LABEL_Y_OFFSET
             else:
-                text_y = self.center_y + 6
+                text_y = self.center_y + self.LABEL_Y_OFFSET_NO_ICON
 
-            cr.select_font_face("Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-            cr.set_font_size(16)
+            cr.select_font_face(
+                self.LABEL_FONT_FAMILY, cairo.FONT_SLANT_NORMAL, font_weight
+            )
+            cr.set_font_size(self.LABEL_FONT_SIZE)
             extents = cr.text_extents(name)
-            cr.set_source_rgb(0.95, 0.95, 0.97)
+            cr.set_source_rgba(*self.LABEL_COLOR)
             cr.move_to(
                 self.center_x - (extents.width / 2 + extents.x_bearing),
                 text_y,
