@@ -61,6 +61,9 @@ class MenuWindow:
         self.center_x = 0
         self.center_y = 0
 
+        # Once GTK reports an absolute pointer position, prefer it over the relative deltas tracked from evdev.
+        self.gtk_pointer_active = False
+
         # Index of the highlighted arc, -1 when nothing is selected
         self.selected = -1
 
@@ -205,7 +208,13 @@ class MenuWindow:
         return geometry.width, geometry.height
 
     def update_motion_rel(self, dx, dy):
-        """Update cursor position using relative hardware deltas from evdev."""
+        """Update cursor position using relative hardware deltas from evdev.
+
+        Only a fallback: once the overlay is under the pointer, GTK reports
+        absolute positions, which are more accurate than accumulating deltas.
+        """
+        if self.gtk_pointer_active:
+            return
         w, h = self.monitor_size()
         # Clamp within monitor bounds
         self.pointer_x = max(0, min(w, self.pointer_x + dx))
@@ -214,12 +223,13 @@ class MenuWindow:
 
     def on_motion(self, controller, x, y):
         """Update cursor position from GTK pointer motion events."""
+        self.gtk_pointer_active = True
         self.pointer_x = x
         self.pointer_y = y
         self.select_hovered()
 
     def on_activate(self, app):
-        """Initialize the fullscreen transparent overlay window and drawing area."""
+        """Initialize the maximized transparent overlay window and drawing area."""
         w, h = self.monitor_size()
         self.pointer_x = w / 2
         self.pointer_y = h / 2
@@ -228,7 +238,9 @@ class MenuWindow:
 
         self.window = Gtk.ApplicationWindow(application=app)
         self.window.set_decorated(False)
-        self.window.set_default_size(w, h)
+
+        self.window.maximize()
+        self.window.present()
 
         self.drawing_area = Gtk.DrawingArea()
         self.drawing_area.set_draw_func(self.draw)
